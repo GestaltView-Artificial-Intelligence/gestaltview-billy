@@ -17,6 +17,40 @@
     "dir": "dist/server",
     "entry": "index.cjs"
   },
+  "permissions": {
+    "http": {
+      "enable": true,
+      "domains": ["gestaltview-three.vercel.app"]
+    },
+    "redis": true,
+    "reddit": { "enable": true }
+  },
+  "settings": {
+    "global": {
+      "runtimeSigningSecret": {
+        "type": "string",
+        "label": "GestaltView adapter signing secret",
+        "isSecret": true
+      }
+    },
+    "subreddit": {
+      "runtimeApiUrl": {
+        "type": "string",
+        "label": "GestaltView runtime base URL",
+        "defaultValue": "https://gestaltview-three.vercel.app/api"
+      },
+      "emergencyDisabled": {
+        "type": "boolean",
+        "label": "Emergency disable requests",
+        "defaultValue": false
+      },
+      "dailyRequestLimit": {
+        "type": "number",
+        "label": "Daily requests per Reddit user",
+        "defaultValue": 20
+      }
+    }
+  },
   "menu": {
     "items": [
       {

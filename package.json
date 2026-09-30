@@ -9,6 +9,7 @@
     "deploy": "npm run test:types && npm run lint && devvit upload",
     "dev": "devvit playtest",
     "launch": "npm run deploy && devvit publish",
+    "discord:register:guild": "node scripts/register-discord.mjs",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "login": "devvit login",
     "prettier": "prettier --write .",

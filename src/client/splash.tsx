@@ -7,30 +7,19 @@ import { createRoot } from 'react-dom/client';
 
 export const Splash = () => {
   return (
-    <div className="flex relative flex-col justify-center items-center min-h-screen gap-4 bg-white dark:bg-gray-900">
-      <img
-        className="object-contain w-1/2 max-w-[250px] mx-auto"
-        src="/snoo.png"
-        alt="Snoo"
-      />
-      <div className="flex flex-col items-center gap-2">
-        <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white">
-          Hey {context.username ?? 'user'} 👋
-        </h1>
-        <p className="text-base text-center text-gray-600 dark:text-gray-300">
-          Edit{' '}
-          <span className="bg-[#e5ebee] dark:bg-gray-700 px-1 py-0.5 rounded">
-            src/client/splash.tsx
-          </span>{' '}
-          to get started.
-        </p>
+    <div className="flex relative flex-col justify-center items-center min-h-screen gap-4 bg-slate-950 px-5 text-slate-100">
+      <div className="flex max-w-md flex-col items-center gap-3 text-center">
+        <p className="text-xs font-semibold tracking-[0.3em] text-cyan-300">GESTALTVIEW</p>
+        <h1 className="text-3xl font-semibold">Insight-Bot</h1>
+        <p className="text-slate-300">A thoughtful doorway for questions, reflection, and new perspectives.</p>
+        <p className="text-sm text-slate-400">Welcome, {context.username ?? 'friend'}. Replies are private by default.</p>
       </div>
       <div className="flex items-center justify-center mt-5">
         <button
-          className="flex items-center justify-center bg-[#d93900] dark:bg-orange-600 text-white w-auto h-10 rounded-full cursor-pointer transition-colors px-4 hover:bg-[#c23300] dark:hover:bg-orange-700"
+          className="flex items-center justify-center bg-cyan-300 text-slate-950 w-auto h-10 rounded-full cursor-pointer transition-colors px-5 font-semibold hover:bg-cyan-200"
           onClick={(e) => requestExpandedMode(e.nativeEvent, 'game')}
         >
-          Tap to Start
+          Ask a question
         </button>
       </div>
       <footer className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 text-[0.8em] text-gray-600 dark:text-gray-400">

@@ -2,71 +2,71 @@ import './index.css';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { navigateTo } from '@devvit/web/client';
-import { useCounter } from './hooks/useCounter';
+import { useState } from 'react';
+
+type Result = { status: string; text?: string; message?: string; receipt_id?: string };
+
+function readResult(value: unknown): Result {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return { status: 'degraded', message: 'GestaltView returned an invalid response.' };
+  }
+  const data = Object.fromEntries(Object.entries(value));
+  return {
+    status: typeof data.status === 'string' ? data.status : 'degraded',
+    text: typeof data.text === 'string' ? data.text : undefined,
+    message: typeof data.message === 'string' ? data.message : undefined,
+    receipt_id: typeof data.receipt_id === 'string' ? data.receipt_id : undefined,
+  };
+}
 
 export const App = () => {
-  const { count, username, loading, increment, decrement } = useCounter();
+  const [prompt, setPrompt] = useState('');
+  const [result, setResult] = useState<Result | null>(null);
+  const [busy, setBusy] = useState(false);
+  const submit = async () => {
+    const text = prompt.trim();
+    if (!text || busy) return;
+    setBusy(true);
+    setResult(null);
+    try {
+      const response = await fetch('/api/insight/respond', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ text, requestId: crypto.randomUUID(), visibility: 'private' }),
+      });
+      const body = readResult(await response.json());
+      setResult(body);
+    } catch {
+      setResult({ status: 'degraded', message: 'Could not reach Insight-Bot. Please retry.' });
+    } finally {
+      setBusy(false);
+    }
+  };
   return (
-    <div className="flex relative flex-col justify-center items-center min-h-screen gap-4 bg-white dark:bg-gray-900">
-      <img
-        className="object-contain w-1/2 max-w-[250px] mx-auto"
-        src="/snoo.png"
-        alt="Snoo"
-      />
-      <div className="flex flex-col items-center gap-2">
-        <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100">
-          {username ? `Hey ${username} 👋` : ''}
-        </h1>
-        <p className="text-base text-center text-gray-600 dark:text-gray-300">
-          Edit{' '}
-          <span className="bg-[#e5ebee] dark:bg-gray-700 px-1 py-0.5 rounded">
-            src/client/game.tsx
-          </span>{' '}
-          to get started.
-        </p>
-      </div>
-      <div className="flex items-center justify-center mt-5">
-        <button
-          className="flex items-center justify-center bg-[#d93900] dark:bg-orange-600 text-white w-14 h-14 text-[2.5em] rounded-full cursor-pointer font-mono leading-none transition-colors hover:bg-[#c23300] dark:hover:bg-orange-700"
-          onClick={decrement}
-          disabled={loading}
-        >
-          -
+    <div className="min-h-screen bg-slate-950 px-5 py-10 text-slate-100">
+      <main className="mx-auto flex max-w-2xl flex-col gap-6">
+        <header className="border-b border-slate-700 pb-5">
+          <p className="text-xs font-semibold tracking-[0.3em] text-cyan-300">GESTALTVIEW / INSIGHT-BOT</p>
+          <h1 className="mt-3 text-3xl font-semibold">A doorway to deeper perspective.</h1>
+          <p className="mt-2 text-slate-300">Ask a question or explore an idea. Replies are private by default.</p>
+        </header>
+        <label className="flex flex-col gap-2 text-sm font-medium" htmlFor="prompt">
+          What would you like to explore?
+          <textarea id="prompt" value={prompt} onChange={(event) => setPrompt(event.target.value)} maxLength={4000} rows={6} className="rounded-lg border border-slate-600 bg-slate-900 p-3 text-base font-normal outline-none focus:border-cyan-300" placeholder="Write your question…" />
+        </label>
+        <div className="flex items-center justify-between text-xs text-slate-400">
+          <span>{prompt.length}/4000</span>
+          <span>Input is not retained by this adapter.</span>
+        </div>
+        <button onClick={() => void submit()} disabled={busy || !prompt.trim()} className="rounded-lg bg-cyan-300 px-5 py-3 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">
+          {busy ? 'Connecting to GestaltView…' : 'Ask Insight-Bot'}
         </button>
-        <span className="text-[1.8em] font-medium mx-5 min-w-[50px] text-center leading-none text-gray-900 dark:text-white">
-          {loading ? '...' : count}
-        </span>
-        <button
-          className="flex items-center justify-center bg-[#d93900] dark:bg-orange-600 text-white w-14 h-14 text-[2.5em] rounded-full cursor-pointer font-mono leading-none transition-colors hover:bg-[#c23300] dark:hover:bg-orange-700"
-          onClick={increment}
-          disabled={loading}
-        >
-          +
-        </button>
-      </div>
-      <footer className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 text-[0.8em] text-gray-600 dark:text-gray-400">
-        <button
-          className="cursor-pointer hover:text-gray-900 dark:hover:text-white transition-colors"
-          onClick={() => navigateTo('https://developers.reddit.com/docs')}
-        >
-          Docs
-        </button>
-        <span className="text-gray-300 dark:text-gray-600">|</span>
-        <button
-          className="cursor-pointer hover:text-gray-900 dark:hover:text-white transition-colors"
-          onClick={() => navigateTo('https://www.reddit.com/r/Devvit')}
-        >
-          r/Devvit
-        </button>
-        <span className="text-gray-300 dark:text-gray-600">|</span>
-        <button
-          className="cursor-pointer hover:text-gray-900 dark:hover:text-white transition-colors"
-          onClick={() => navigateTo('https://discord.com/invite/R7yu2wh9Qz')}
-        >
-          Discord
-        </button>
-      </footer>
+        {result && <section aria-live="polite" className="whitespace-pre-wrap rounded-lg border border-slate-700 bg-slate-900 p-5">
+          <p className="mb-3 text-xs uppercase tracking-widest text-cyan-300">{result.status}</p>
+          <p>{result.text ?? result.message}</p>
+          {result.receipt_id && <p className="mt-4 text-xs text-slate-500">Receipt {result.receipt_id}</p>}
+        </section>}
+      </main>
     </div>
   );
 };

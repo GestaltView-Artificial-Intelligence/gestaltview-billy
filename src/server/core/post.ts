@@ -2,6 +2,6 @@ import { reddit } from '@devvit/web/server';
 
 export const createPost = async () => {
   return await reddit.submitCustomPost({
-    title: 'gestaltview-billy',
+    title: 'GestaltView Insight-Bot',
   });
 };

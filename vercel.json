@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/discord/interactions.ts": {
+      "maxDuration": 10
+    }
+  }
+}
