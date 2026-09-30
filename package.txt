@@ -1,7 +1,7 @@
 {
   "private": true,
-  "name": "insight-bot-2",
-  "version": "0.5.0",
+  "name": "gestaltview-billy",
+  "version": "0.3.0",
   "license": "BSD-3-Clause",
   "type": "module",
   "scripts": {
