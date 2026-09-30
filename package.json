@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "gestaltview-billy",
-  "version": "0.0.0",
+  "version": "0.3.0",
   "license": "BSD-3-Clause",
   "type": "module",
   "scripts": {
@@ -10,9 +10,11 @@
     "dev": "devvit playtest",
     "launch": "npm run deploy && devvit publish",
     "discord:register:guild": "node scripts/register-discord.mjs",
+    "discord:register:global": "DISCORD_GUILD_ID= node scripts/register-discord.mjs",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "login": "devvit login",
     "prettier": "prettier --write .",
+    "test": "node --test scripts/register-discord.test.mjs"
     "test:types": "tsc --build",
     "test:unit": "node --experimental-strip-types --no-warnings=ExperimentalWarning --test \"src/**/*.test.ts\""
   },
@@ -26,7 +28,8 @@
     "devvit": "0.14.6",
     "hono": "4.13.12",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "three": "0.185.1"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
