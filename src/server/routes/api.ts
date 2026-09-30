@@ -64,8 +64,8 @@ api.post('/insight/respond', async (c) => {
     actor: { platform_user_id: userId, display_name: await reddit.getCurrentUsername() ?? undefined },
     conversation: { platform_conversation_id: postId ?? 'unknown', visibility },
     input: { text },
-    consent: { response_public: visibility === 'public', retain_input: false, allow_gestaltview_handoff: false },
-    policy: { trigger: 'custom_post', allow_external_post: visibility === 'public' },
+    consent: { response_public: false, retain_input: false, allow_gestaltview_handoff: false },
+    policy: { trigger: 'custom_post', allow_external_post: false },
   };
   const timestamp = Math.floor(Date.now() / 1000).toString();
   const serialized = JSON.stringify(request);

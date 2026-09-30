@@ -13,9 +13,9 @@ function readResult(value: unknown): Result {
   const data = Object.fromEntries(Object.entries(value));
   return {
     status: typeof data.status === 'string' ? data.status : 'degraded',
-    text: typeof data.text === 'string' ? data.text : undefined,
-    message: typeof data.message === 'string' ? data.message : undefined,
-    receipt_id: typeof data.receipt_id === 'string' ? data.receipt_id : undefined,
+    ...(typeof data.text === 'string' ? { text: data.text } : {}),
+    ...(typeof data.message === 'string' ? { message: data.message } : {}),
+    ...(typeof data.receipt_id === 'string' ? { receipt_id: data.receipt_id } : {}),
   };
 }
 
@@ -46,6 +46,11 @@ export const App = () => {
     <div className="min-h-screen bg-slate-950 px-5 py-10 text-slate-100">
       <main className="mx-auto flex max-w-2xl flex-col gap-6">
         <header className="border-b border-slate-700 pb-5">
+          <img
+            src="/insight-bot-logo.png"
+            alt="Insight-Bot"
+            className="mb-5 h-auto w-full max-w-lg object-contain object-left"
+          />
           <p className="text-xs font-semibold tracking-[0.3em] text-cyan-300">GESTALTVIEW / INSIGHT-BOT</p>
           <h1 className="mt-3 text-3xl font-semibold">A doorway to deeper perspective.</h1>
           <p className="mt-2 text-slate-300">Ask a question or explore an idea. Replies are private by default.</p>

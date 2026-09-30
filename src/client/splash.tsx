@@ -9,8 +9,12 @@ export const Splash = () => {
   return (
     <div className="flex relative flex-col justify-center items-center min-h-screen gap-4 bg-slate-950 px-5 text-slate-100">
       <div className="flex max-w-md flex-col items-center gap-3 text-center">
+        <img
+          src="/insight-bot-logo.png"
+          alt="Insight-Bot"
+          className="h-auto w-full max-w-sm object-contain"
+        />
         <p className="text-xs font-semibold tracking-[0.3em] text-cyan-300">GESTALTVIEW</p>
-        <h1 className="text-3xl font-semibold">Insight-Bot</h1>
         <p className="text-slate-300">A thoughtful doorway for questions, reflection, and new perspectives.</p>
         <p className="text-sm text-slate-400">Welcome, {context.username ?? 'friend'}. Replies are private by default.</p>
       </div>
