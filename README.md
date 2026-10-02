@@ -1,70 +1,60 @@
-## GestaltView Insight-Bot
+# Insight-Bot v3.0 README
 
-- [Devvit](https://developers.reddit.com/): A way to build and deploy immersive games on Reddit
-- [Vite](https://vite.dev/): For compiling the webView
-- [React](https://react.dev/): For UI
-- [Hono](https://hono.dev/): For backend logic
-- [Tailwind](https://tailwindcss.com/): For styles
-- [TypeScript](https://www.typescriptlang.org/): For type safety
+### *This README is structured specifically to meet the Reddit App Review guidelines, ensuring it is accessible to non-developers while comprehensively detailing the app's architecture and safety protocols.*
 
-## Insight-Bot integration
+## App Overview Summary
 
-This scaffold has two channel adapters that call the same GestaltView runtime:
+Insight-Bot v3.0 is an advanced collaborative AI partner designed to bring "Billy"—our canonical GestaltView runtime personality—directly into Reddit and Discord communities. Built for community members and moderators, this app elevates engagement by answering questions, providing unique insights, and facilitating interactive experiences.
 
-```text
-Reddit custom post → Devvit server → signed request → GestaltView
-Discord slash command → Vercel HTTPS interaction → signed request → GestaltView
-```
+## Critical Operational Notes:
 
-Discord's public HTTPS interactions endpoint is `https://<your-vercel-host>/api/discord/interactions`.
-The runtime owns response generation and policy. The adapters send only the
-current message, set input retention and handoff to false, and default to private
-responses. A public Discord reply requires both the user's `public` option and
-`DISCORD_PUBLIC_REPLIES_ENABLED=true`.
+ * Approved LLM Usage: Insight-Bot v3.0 processes queries and generates responses using Google Gemini, an explicitly approved Large Language Model for the Reddit Developer Platform.
+ 
+ * No Automated Posting: Any action taken on behalf of a user—such as submitting a post or a comment—requires an explicit, manual confirmation (e.g., clicking a button). Users are explicitly shown how their username will appear before confirming, ensuring they are never misled or surprised.
+ 
+ * Data Minimization: The app operates strictly on the data necessary for its stated functionality; we never request login credentials, passwords, or personal information. Furthermore, we never use Reddit data to train, fine-tune, or modify our underlying AI models.
+ 
+ * Strict Deletion Adherence: The app automatically listens for PostDelete and CommentDelete events to purge associated content from our systems. Any user data stored in Redis/KVstore or our external services is set to automatically expire and delete within 30 days.
+ 
+### How to Interact:
 
-### Configure the Reddit/Devvit adapter
+ * **Reddit & Devvit**: Users interact with Insight-Bot via custom interactive Devvit posts. All user-generated content forms within the app utilize limited forms of expression (like predefined safe dictionaries or buttons) to minimize the risk of abuse.
+ 
+ * **Discord Guilds**: Users trigger Billy using slash commands, which send a signed request to the GestaltView runtime via Vercel HTTPS interactions. By default, Discord replies are private (ephemeral). A public Discord reply requires the user to explicitly select the public option alongside the server administrator setting `DISCORD_PUBLIC_REPLIES_ENABLED=true`
+ 
+### Configuration and Deployment
 
-Set the Devvit global `runtimeSigningSecret` to the secret shared with the
-GestaltView runtime. The `runtimeApiUrl` default is
-`https://gestaltview-three.vercel.app/api`; override it only for another
-operator-approved environment.
-The app supports a per-subreddit emergency disable and daily request limit.
+*Insight-Bot v3.0 utilizes two channel adapters that route public-context-only requests to the canonical GestaltView runtime.
+Reddit / Devvit Adapter Setup*
 
-### Configure the Discord adapter
+ * Log into the Reddit developer CLI using the command npm run login.
+ * Start your local playtest server using npm run dev.
+ * Set your global runtime secret using: npx devvit settings set runtimeToken.
+ * Open the app’s installation settings in your test subreddit to configure the runtime URL, retention mode, emergency disable switches, and daily request limits.
+ * Upload a private test version of the app using npm run deploy. Once playtesting is complete, publish your app for official Reddit App Review using npm run launch.
+ 
+### Discord Adapter Setup
+ * Deploy the Discord adapter repository to Vercel (e.g., under the NonsensicalAndroids team environment for the gestaltview-v3.1 project).
+ * Configure the following server-side environment variables in your deployment:
+   * `DISCORD_PUBLIC_KEY`: Your Discord application's public key.
+   * `INSIGHT_BOT_RUNTIME_URL`: The GestaltView API base URL.
+   * `INSIGHT_BOT_SIGNING_SECRET`: The shared adapter signing secret.
+   * `DISCORD_PUBLIC_REPLIES_ENABLED`: Set to false by default.
+   * `INSIGHT_BOT_DISABLED`: Set to false unless pausing the adapter.
+ * Set your Discord Interactions Endpoint URL to `https://gestaltview-three.vercel.app/api/discord/interactions`
+ * Register your slash commands using `npm run discord:register:guild` for a test guild. Once accepted, remove the guild ID and run `npm run discord:register:global`
+ 
+### Content & Safety Guardrails
 
-Deploy this repository to Vercel and set these server-side environment values:
+*Insight-Bot v3.0 complies entirely with Reddit's public content, safety, and IP policies.*
 
-- `DISCORD_PUBLIC_KEY` — Discord application's public key.
-- `INSIGHT_BOT_RUNTIME_URL` — GestaltView API base URL (default:
-  `https://gestaltview-three.vercel.app/api`).
-- `INSIGHT_BOT_SIGNING_SECRET` — same adapter signing secret configured with the runtime.
-- `DISCORD_PUBLIC_REPLIES_ENABLED` — `false` by default.
-- `INSIGHT_BOT_DISABLED` — `false` unless pausing the adapter.
+ * **Moderator Tools**: For communities utilizing the bot for moderation or community governance, configuration instructions are provided directly within the app description to ensure safe and responsible deployment.
+ * **Content Restrictions**: The bot does not facilitate dangerous activities, illegal content, or mature content without appropriate age-gating labels. We strictly prohibit integration with restricted industries such as gambling, financial products, or cryptocurrency.
+ * **No External Upselling**: Insight-Bot does not link out to external platforms to promote "demo" versions, nor do we ask users to create profiles outside of Reddit to use the core functionality.
+ * **Reddit IP**: The app relies on its own unique branding and does not utilize Reddit trademarks, such as SNOO, without explicit written permission.
+ 
+### *Privacy Policy & Terms of Service*
 
-Set Discord's interactions endpoint URL to the deployed `/api/discord/interactions`
-route. Register commands in a test guild with `DISCORD_APPLICATION_ID`,
-`DISCORD_BOT_TOKEN`, and `DISCORD_GUILD_ID` set in the shell, then run
-`npm run discord:register:guild`. The token is used only by the registration
-script and should not be saved in the repository.
-
-See [docs/INTEGRATION.md](docs/INTEGRATION.md) for the request contract and
-deployment boundary. The current runtime must support `POST
-/api/insight-bot/respond` and verify the timestamp/body HMAC. Configure its URL
-and signing secret through operator-owned settings.
-
-## Getting Started
-
-> Use Node 24 or newer, matching `package.json`.
-
-1. Run `npm create devvit@latest --template=react`
-2. Go through the installation wizard. You will need to create a Reddit account and connect it to Reddit developers
-3. Copy the command on the success page into your terminal
-
-## Commands
-
-- `npm run dev`: Starts a development server where you can develop your application live on Reddit.
-- `npm run build`: Builds your client and server projects
-- `npm run deploy`: Uploads a new version of your app
-- `npm run launch`: Publishes your app for review
-- `npm run login`: Logs your CLI into Reddit
-- `npm run type-check`: Type checks, lints, and prettifies your app
+Because Insight-Bot utilizes an approved LLM (Google Gemini) and HTTP Fetch functionality to connect with the GestaltView runtime, it operates under dedicated legal policies. These documents guarantee that we never sell, license, or commercialize redditor data.
+ * https://gestaltview-three.vercel.app/terms
+ * https://gestaltview-three.vercel.app/privacy
