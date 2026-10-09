@@ -134,10 +134,13 @@ export const Chat = () => {
       });
       const result = readResult(await response.json());
       if (result.status === 'completed' && result.text) {
-        setMessages((prev) => [
-          ...prev,
-          { id: uid(), role: 'billy', text: result.text as string, receiptId: result.receipt_id },
-        ]);
+        const billMessage: Message = {
+          id: uid(),
+          role: 'billy',
+          text: result.text as string,
+          ...(result.receipt_id ? { receiptId: result.receipt_id } : {}),
+        };
+        setMessages((prev) => [...prev, billMessage]);
       } else if (result.status === 'queued') {
         setMessages((prev) => [
           ...prev,
@@ -238,7 +241,7 @@ export const Chat = () => {
           <MessageBubble
             key={m.id}
             message={m}
-            onRetry={m.role === 'system' && m.retryable ? retryLast : undefined}
+            {...(m.role === 'system' && m.retryable ? { onRetry: retryLast } : {})}
           />
         ))}
 

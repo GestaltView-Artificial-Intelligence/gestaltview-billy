@@ -14,7 +14,7 @@
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "login": "devvit login",
     "prettier": "prettier --write .",
-    "test": "node --test scripts/register-discord.test.mjs"
+    "test": "node --test scripts/register-discord.test.mjs",
     "test:types": "tsc --build",
     "test:unit": "node --experimental-strip-types --no-warnings=ExperimentalWarning --test \"src/**/*.test.ts\""
   },
