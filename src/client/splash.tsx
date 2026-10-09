@@ -21,9 +21,9 @@ export const Splash = () => {
       <div className="flex items-center justify-center mt-5">
         <button
           className="flex items-center justify-center bg-cyan-300 text-slate-950 w-auto h-10 rounded-full cursor-pointer transition-colors px-5 font-semibold hover:bg-cyan-200"
-          onClick={(e) => requestExpandedMode(e.nativeEvent, 'game')}
+          onClick={(e) => requestExpandedMode(e.nativeEvent, 'chat')}
         >
-          Ask a question
+          Chat with Billy
         </button>
       </div>
       <footer className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 text-[0.8em] text-gray-600 dark:text-gray-400">
@@ -57,3 +57,4 @@ createRoot(document.getElementById('root')!).render(
     <Splash />
   </StrictMode>
 );
+

@@ -16,11 +16,19 @@ Insight-Bot v3.0 is an advanced collaborative AI partner designed to bring "Bill
  
  * Strict Deletion Adherence: The app automatically listens for PostDelete and CommentDelete events to purge associated content from our systems. Any user data stored in Redis/KVstore or our external services is set to automatically expire and delete within 30 days.
  
-### How to Interact:
+### How to Interact (Reddit App Review walkthrough):
 
- * **Reddit & Devvit**: Users interact with Insight-Bot via custom interactive Devvit posts. All user-generated content forms within the app utilize limited forms of expression (like predefined safe dictionaries or buttons) to minimize the risk of abuse.
- 
+**What this app does, in 30 seconds:** it puts a chat window with Billy — the GestaltView AI collaborator — directly inside a Reddit post. A moderator creates the post; anyone who opens it can ask Billy questions and get thoughtful replies. That is the entire app: one chat UI, no background behavior, no auto-posting.
+
+1. A moderator installs the app and picks the subreddit menu item **"Create a new post"**.
+2. This creates a post titled **"GestaltView Insight-Bot"** showing a welcome screen ("Talk to Billy") with a **"Chat with Billy"** button.
+3. Tapping the button opens the full chat: a message thread, starter questions, and a text input.
+4. The user types a question and sends it. The app forwards it — signed (HMAC), rate-limited (20/day per user, configurable), private by default — to the GestaltView runtime, and Billy's reply appears in the thread.
+5. Inputs are not retained by this adapter. Replies are visible only to the asker. A per-message receipt ID is shown for traceability.
+
  * **Discord Guilds**: Users trigger Billy using slash commands, which send a signed request to the GestaltView runtime via Vercel HTTPS interactions. By default, Discord replies are private (ephemeral). A public Discord reply requires the user to explicitly select the public option alongside the server administrator setting `DISCORD_PUBLIC_REPLIES_ENABLED=true`
+
+**For reviewers:** please evaluate this app from a playtest build (`npm run dev`). It is not published; the previous submission was sent up before the UX was ready, which is what this revision fixes.
  
 ### Configuration and Deployment
 
@@ -58,3 +66,4 @@ Reddit / Devvit Adapter Setup*
 Because Insight-Bot utilizes an approved LLM (Google Gemini) and HTTP Fetch functionality to connect with the GestaltView runtime, it operates under dedicated legal policies. These documents guarantee that we never sell, license, or commercialize redditor data.
  * https://gestaltview-three.vercel.app/terms
  * https://gestaltview-three.vercel.app/privacy
+
