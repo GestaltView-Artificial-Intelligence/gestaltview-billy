@@ -1,69 +1,52 @@
-# Insight-Bot v3.0 README
+# gestaltview-billy (Insight-Bot)
 
-### *This README is structured specifically to meet the Reddit App Review guidelines, ensuring it is accessible to non-developers while comprehensively detailing the app's architecture and safety protocols.*
+**What it is:** a Devvit app that puts a chat window with Billy — the GestaltView AI collaborator — inside a Reddit post. A moderator creates the post; anyone who opens it can ask Billy questions and get thoughtful replies. That is the entire app: one chat UI, no auto-posting, no background behavior.
 
-## App Overview Summary
+## For Reddit App Reviewers — please read first
 
-Insight-Bot v3.0 is an advanced collaborative AI partner designed to bring "Billy"—our canonical GestaltView runtime personality—directly into Reddit and Discord communities. Built for community members and moderators, this app elevates engagement by answering questions, providing unique insights, and facilitating interactive experiences.
+**This app cannot answer questions until its HTTP domain exception is approved.** When a user sends a chat message, the app's server signs the request and POSTs it to the GestaltView runtime at `https://gestaltview-three.vercel.app/api/insight-bot/respond`, which generates Billy's reply and returns it. The domain is declared in `devvit.json` (`permissions.http.domains`), but Devvit blocks all outbound HTTP until the exception is approved in the Developer Portal under this app's Developer Settings.
 
-## Critical Operational Notes:
+Until approval, the app installs and renders normally, but every chat attempt returns its designed degraded state ("GestaltView is temporarily unavailable"). That is the platform allowlist working as intended — not an app defect. **Please approve `gestaltview-three.vercel.app` so the app can be reviewed end to end.**
 
- * Approved LLM Usage: Insight-Bot v3.0 processes queries and generates responses using Google Gemini, an explicitly approved Large Language Model for the Reddit Developer Platform.
- 
- * No Automated Posting: Any action taken on behalf of a user—such as submitting a post or a comment—requires an explicit, manual confirmation (e.g., clicking a button). Users are explicitly shown how their username will appear before confirming, ensuring they are never misled or surprised.
- 
- * Data Minimization: The app operates strictly on the data necessary for its stated functionality; we never request login credentials, passwords, or personal information. Furthermore, we never use Reddit data to train, fine-tune, or modify our underlying AI models.
- 
- * Strict Deletion Adherence: The app automatically listens for PostDelete and CommentDelete events to purge associated content from our systems. Any user data stored in Redis/KVstore or our external services is set to automatically expire and delete within 30 days.
- 
-### How to Interact (Reddit App Review walkthrough):
+## Function list
 
-**What this app does, in 30 seconds:** it puts a chat window with Billy — the GestaltView AI collaborator — directly inside a Reddit post. A moderator creates the post; anyone who opens it can ask Billy questions and get thoughtful replies. That is the entire app: one chat UI, no background behavior, no auto-posting.
+- **Chat with Billy** — a message thread inside a Reddit custom post; the user types a question, Billy replies.
+- **Starter questions** — suggested prompts so first-time users know what to ask.
+- **Private by default** — replies are visible only to the person who asked.
+- **Receipt IDs** — every reply carries a per-message receipt ID for traceability.
+- **Typing indicator and retry** — clear loading, degraded, and blocked states with retry.
+- **Daily per-user request limit** — default 20/day per user, adjustable per subreddit.
+- **Emergency disable** — a per-subreddit switch that pauses the app instantly.
+- **Moderator-created posts** — the chat post is created from the subreddit menu ("Create a new post"); the app never posts or comments on its own.
 
-1. A moderator installs the app and picks the subreddit menu item **"Create a new post"**.
-2. This creates a post titled **"GestaltView Insight-Bot"** showing a welcome screen ("Talk to Billy") with a **"Chat with Billy"** button.
-3. Tapping the button opens the full chat: a message thread, starter questions, and a text input.
-4. The user types a question and sends it. The app forwards it — signed (HMAC), rate-limited (20/day per user, configurable), private by default — to the GestaltView runtime, and Billy's reply appears in the thread.
-5. Inputs are not retained by this adapter. Replies are visible only to the asker. A per-message receipt ID is shown for traceability.
+## Reviewer walkthrough (playtest)
 
- * **Discord Guilds**: Users trigger Billy using slash commands, which send a signed request to the GestaltView runtime via Vercel HTTPS interactions. By default, Discord replies are private (ephemeral). A public Discord reply requires the user to explicitly select the public option alongside the server administrator setting `DISCORD_PUBLIC_REPLIES_ENABLED=true`
+1. `npm run login` — authenticate the Devvit CLI.
+2. `npx devvit settings set runtimeSigningSecret` — set the adapter signing secret (must match the runtime's `INSIGHT_BOT_SIGNING_SECRET`; paste cleanly, no trailing whitespace).
+3. `npm run dev` — starts playtest; the CLI prints the playtest post URL.
+4. Open the URL, click **Chat with Billy**, send a question.
+5. Billy's reply appears in the thread, private to you, with a receipt ID.
 
-**For reviewers:** please evaluate this app from a playtest build (`npm run dev`). It is not published; the previous submission was sent up before the UX was ready, which is what this revision fixes.
- 
-### Configuration and Deployment
+## How it works
 
-*Insight-Bot v3.0 utilizes two channel adapters that route public-context-only requests to the canonical GestaltView runtime.
-Reddit / Devvit Adapter Setup*
+Each chat message goes to the app's server (`POST /api/insight/respond`), which validates it, checks the rate limit and emergency switch, then forwards it to the GestaltView runtime as a signed `insight_bot_request.v2` payload: HMAC-SHA256 over `<unix-seconds>.<exact request body>`, with the timestamp, adapter name (`reddit`), and signature in headers. The runtime verifies the signature and a five-minute timestamp window, routes the message through Billy's model router, and returns an `insight_bot_response.v2` reply. The adapter keeps no copy of the input.
 
- * Log into the Reddit developer CLI using the command npm run login.
- * Start your local playtest server using npm run dev.
- * Set your global runtime secret using: npx devvit settings set runtimeToken.
- * Open the app’s installation settings in your test subreddit to configure the runtime URL, retention mode, emergency disable switches, and daily request limits.
- * Upload a private test version of the app using npm run deploy. Once playtesting is complete, publish your app for official Reddit App Review using npm run launch.
- 
-### Discord Adapter Setup
- * Deploy the Discord adapter repository to Vercel (e.g., under the NonsensicalAndroids team environment for the gestaltview-v3.1 project).
- * Configure the following server-side environment variables in your deployment:
-   * `DISCORD_PUBLIC_KEY`: Your Discord application's public key.
-   * `INSIGHT_BOT_RUNTIME_URL`: The GestaltView API base URL.
-   * `INSIGHT_BOT_SIGNING_SECRET`: The shared adapter signing secret.
-   * `DISCORD_PUBLIC_REPLIES_ENABLED`: Set to false by default.
-   * `INSIGHT_BOT_DISABLED`: Set to false unless pausing the adapter.
- * Set your Discord Interactions Endpoint URL to `https://gestaltview-three.vercel.app/api/discord/interactions`
- * Register your slash commands using `npm run discord:register:guild` for a test guild. Once accepted, remove the guild ID and run `npm run discord:register:global`
- 
-### Content & Safety Guardrails
+## Safety and privacy
 
-*Insight-Bot v3.0 complies entirely with Reddit's public content, safety, and IP policies.*
+- Nothing is ever posted or commented on behalf of a user — the only Reddit write is the moderator-initiated chat post.
+- Replies are private to the asker; nothing is public by default.
+- Inputs are not retained by the adapter; the runtime contract enforces `retain_input: false`.
+- Per-user daily rate limits prevent abuse.
+- No Reddit data is used to train or fine-tune models.
+- Privacy policy: https://gestaltview-three.vercel.app/privacy · Terms: https://gestaltview-three.vercel.app/terms
 
- * **Moderator Tools**: For communities utilizing the bot for moderation or community governance, configuration instructions are provided directly within the app description to ensure safe and responsible deployment.
- * **Content Restrictions**: The bot does not facilitate dangerous activities, illegal content, or mature content without appropriate age-gating labels. We strictly prohibit integration with restricted industries such as gambling, financial products, or cryptocurrency.
- * **No External Upselling**: Insight-Bot does not link out to external platforms to promote "demo" versions, nor do we ask users to create profiles outside of Reddit to use the core functionality.
- * **Reddit IP**: The app relies on its own unique branding and does not utilize Reddit trademarks, such as SNOO, without explicit written permission.
- 
-### *Privacy Policy & Terms of Service*
+## Developer setup
 
-Because Insight-Bot utilizes an approved LLM (Google Gemini) and HTTP Fetch functionality to connect with the GestaltView runtime, it operates under dedicated legal policies. These documents guarantee that we never sell, license, or commercialize redditor data.
- * https://gestaltview-three.vercel.app/terms
- * https://gestaltview-three.vercel.app/privacy
+- `npm run login` — Devvit CLI login
+- `npm run dev` — playtest (`devvit playtest`)
+- `npm run deploy` — typecheck, lint, `devvit upload`
+- `npm run launch` — deploy + `devvit publish`
+- `npx devvit settings set runtimeSigningSecret` — adapter signing secret (global)
+- Per-subreddit install settings: `runtimeApiUrl` (default `https://gestaltview-three.vercel.app/api`), `dailyRequestLimit`, `emergencyDisabled`
 
+License: BSD-3-Clause (see LICENSE).
