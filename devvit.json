@@ -1,85 +1,79 @@
 {
   "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
+  "dev": {
+    "subreddit": "gestaltview_billy_dev"
+  },
+  "menu": {
+    "items": [
+      {
+        "description": "gestaltview-billy",
+        "endpoint": "/internal/menu/post-create",
+        "forUserType": "moderator",
+        "label": "Create a new post",
+        "location": "subreddit"
+      }
+    ]
+  },
   "name": "gestaltview-billy",
+  "permissions": {
+    "http": {
+      "domains": [
+        "gestaltview-three.vercel.app"
+      ],
+      "enable": true
+    },
+    "reddit": {
+      "enable": true
+    },
+    "redis": true
+  },
   "post": {
     "dir": "dist/client",
     "entrypoints": {
-      "default": {
-        "inline": true,
-        "entry": "splash.html"
+      "chat": {
+        "entry": "chat.html"
       },
-      "game": {
-        "entry": "game.html"
+      "default": {
+        "entry": "splash.html",
+        "inline": true
       }
     }
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch"
   },
   "server": {
     "dir": "dist/server",
     "entry": "index.cjs"
   },
-  "permissions": {
-    "http": {
-      "enable": true,
-      "domains": ["gestaltview-three.vercel.app"]
-    },
-    "redis": true,
-    "reddit": { "enable": true }
-  },
   "settings": {
     "global": {
       "runtimeSigningSecret": {
-        "type": "string",
+        "isSecret": true,
         "label": "GestaltView adapter signing secret",
-        "isSecret": true
+        "type": "string"
       }
     },
     "subreddit": {
-      "runtimeApiUrl": {
-        "type": "string",
-        "label": "GestaltView runtime base URL",
-        "defaultValue": "https://gestaltview-three.vercel.app/api"
+      "dailyRequestLimit": {
+        "defaultValue": 20,
+        "label": "Daily requests per Reddit user",
+        "type": "number"
       },
       "emergencyDisabled": {
-        "type": "boolean",
+        "defaultValue": false,
         "label": "Emergency disable requests",
-        "defaultValue": false
+        "type": "boolean"
       },
-      "dailyRequestLimit": {
-        "type": "number",
-        "label": "Daily requests per Reddit user",
-        "defaultValue": 20
+      "runtimeApiUrl": {
+        "defaultValue": "https://gestaltview-three.vercel.app/api",
+        "label": "GestaltView runtime base URL",
+        "type": "string"
       }
     }
   },
-  "menu": {
-    "items": [
-      {
-        "label": "Create a new post",
-        "description": "gestaltview-billy",
-        "location": "subreddit",
-        "forUserType": "moderator",
-        "endpoint": "/internal/menu/post-create"
-      },
-      {
-        "label": "Example form",
-        "description": "Show a simple form",
-        "location": "subreddit",
-        "forUserType": "moderator",
-        "endpoint": "/internal/menu/example-form"
-      }
-    ]
-  },
-  "forms": {
-    "exampleForm": "/internal/form/example-submit"
-  },
   "triggers": {
     "onAppInstall": "/internal/triggers/on-app-install"
-  },
-  "scripts": {
-    "dev": "vite build --watch",
-    "build": "vite build"
-  },
-  "dev": {
-    "subreddit": "gestaltview_billy_dev"
   }
 }
