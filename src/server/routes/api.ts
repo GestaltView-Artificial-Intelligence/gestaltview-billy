@@ -1,16 +1,11 @@
 import { Hono } from 'hono';
-import { context, redis, reddit, settings } from '@devvit/web/server';
+import { context, redis, reddit } from '@devvit/web/server';
 import type {
   DecrementResponse,
   IncrementResponse,
   InitResponse,
 } from '../../shared/api';
-import {
-  INSIGHT_BOT_REQUEST_VERSION,
-  parseInsightBotResponse,
-  type InsightBotRequest,
-} from '../../shared/insight-bot';
-import { createHash, createHmac } from 'node:crypto';
+import { askBilly, checkDailyLimit, getBillyConfig, isConfigured } from '../core/billy';
 
 type ErrorResponse = {
   status: 'error';
@@ -30,68 +25,34 @@ api.post('/insight/respond', async (c) => {
     return c.json({ status: 'blocked', message: 'Enter 1–4000 characters.' }, 400);
   }
 
-  const config = await settings.getAll<{
-    runtimeApiUrl?: string;
-    runtimeSigningSecret?: string;
-    emergencyDisabled?: boolean;
-    dailyRequestLimit?: number;
-  }>();
+  const config = await getBillyConfig();
   if (config.emergencyDisabled) {
     return c.json({ status: 'blocked', message: 'Insight-Bot is paused for this community.' }, 503);
   }
-  if (!config.runtimeApiUrl || !config.runtimeSigningSecret) {
+  if (!isConfigured(config)) {
     return c.json({ status: 'blocked', message: 'The GestaltView connection is not configured.' }, 503);
   }
 
   const postId = context.postId;
   const userId = context.userId ?? 'anonymous';
-  const date = new Date().toISOString().slice(0, 10);
-  const limitKey = `insight:limit:${context.subredditName ?? 'unknown'}:${date}:${userId}`;
-  const used = await redis.incrBy(limitKey, 1);
-  if (used === 1) await redis.expire(limitKey, 172800);
-  if (used > Math.max(1, config.dailyRequestLimit ?? 20)) {
+  if (!(await checkDailyLimit(userId, config.dailyRequestLimit))) {
     return c.json({ status: 'blocked', message: 'The daily request limit has been reached.' }, 429);
   }
-  const requestId = createHash('sha256')
-    .update(`reddit:${postId ?? 'post'}:${userId}:${typeof data.requestId === 'string' ? data.requestId : ''}`)
-    .digest('hex');
-  const visibility = 'private';
-  const request: InsightBotRequest = {
-    schema_version: INSIGHT_BOT_REQUEST_VERSION,
-    request_id: requestId,
-    channel: 'reddit',
-    installation_id: context.subredditName ?? 'unknown',
-    actor: { platform_user_id: userId, display_name: await reddit.getCurrentUsername() ?? undefined },
-    conversation: { platform_conversation_id: postId ?? 'unknown', visibility },
-    input: { text },
-    consent: { response_public: false, retain_input: false, allow_gestaltview_handoff: false },
-    policy: { trigger: 'custom_post', allow_external_post: false },
-  };
-  const timestamp = Math.floor(Date.now() / 1000).toString();
-  const serialized = JSON.stringify(request);
-  const signature = createHmac('sha256', config.runtimeSigningSecret)
-    .update(`${timestamp}.${serialized}`)
-    .digest('hex');
-  try {
-    const response = await fetch(`${config.runtimeApiUrl.replace(/\/+$/, '')}/insight-bot/respond`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-insight-bot-adapter': 'reddit',
-        'x-insight-bot-timestamp': timestamp,
-        'x-insight-bot-signature': `${timestamp}.${signature}`,
-      },
-      body: serialized,
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!response.ok) return c.json({ status: 'degraded', message: 'GestaltView is temporarily unavailable.' }, 503);
-    const result = parseInsightBotResponse(await response.json());
-    if (result.request_id !== requestId) throw new Error('Response request ID mismatch');
-    return c.json(result);
-  } catch (error) {
-    console.error('Insight-Bot runtime request failed', error instanceof Error ? error.message : 'unknown error');
-    return c.json({ status: 'degraded', message: 'Insight-Bot could not reach GestaltView. Please retry.' }, 503);
+
+  const result = await askBilly(config, {
+    text,
+    actorId: userId,
+    actorName: (await reddit.getCurrentUsername()) ?? undefined,
+    conversationId: postId ?? 'post',
+    clientRequestId: typeof data.requestId === 'string' ? data.requestId : '',
+    visibility: 'private',
+    trigger: 'custom_post',
+    responsePublic: false,
+  });
+  if (!result.ok) {
+    return c.json({ status: result.kind, message: result.message }, 503);
   }
+  return c.json(result.response);
 });
 
 api.get('/init', async (c) => {

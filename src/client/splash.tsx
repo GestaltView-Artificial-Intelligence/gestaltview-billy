@@ -10,7 +10,7 @@ export const Splash = () => {
     <div className="flex relative flex-col justify-center items-center min-h-screen gap-4 bg-slate-950 px-5 text-slate-100">
       <div className="flex max-w-md flex-col items-center gap-3 text-center">
         <img
-          src="/insight-bot-logo.png"
+          src="/insight-bot-icon.png"
           alt="Insight-Bot"
           className="h-auto w-full max-w-sm object-contain"
         />

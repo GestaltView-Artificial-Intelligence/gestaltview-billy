@@ -11,6 +11,13 @@
         "forUserType": "moderator",
         "label": "Create a new post",
         "location": "subreddit"
+      },
+      {
+        "description": "Billy reads the post and its top comments, then shows the moderator a private 30-second brief. Nothing is posted.",
+        "endpoint": "/internal/menu/summarize-thread",
+        "forUserType": "moderator",
+        "label": "Ask Billy: summarize thread",
+        "location": "post"
       }
     ]
   },
@@ -70,10 +77,16 @@
         "defaultValue": "https://gestaltview-three.vercel.app/api",
         "label": "GestaltView runtime base URL",
         "type": "string"
+      },
+      "summonEnabled": {
+        "defaultValue": true,
+        "label": "Respond when summoned in comments (!billy)",
+        "type": "boolean"
       }
     }
   },
   "triggers": {
-    "onAppInstall": "/internal/triggers/on-app-install"
+    "onAppInstall": "/internal/triggers/on-app-install",
+    "onCommentCreate": "/internal/triggers/on-comment-summon"
   }
 }
