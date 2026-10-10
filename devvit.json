@@ -18,7 +18,8 @@
   "permissions": {
     "http": {
       "domains": [
-        "gestaltview-three.vercel.app"
+        "https://gestaltview-three.vercel.app",
+        "https://keith-soyka-portfolio.vercel.app"
       ],
       "enable": true
     },

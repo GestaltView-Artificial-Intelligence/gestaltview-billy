@@ -1,6 +1,12 @@
 import './index.css';
 
-import { StrictMode, useEffect, useRef, useState } from 'react';
+import {
+  StrictMode,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from 'react';
 import { createRoot } from 'react-dom/client';
 import { context } from '@devvit/web/client';
 
@@ -183,7 +189,7 @@ export const Chat = () => {
     if (lastUser) void send(lastUser.text);
   };
 
-  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       void send(draft);
