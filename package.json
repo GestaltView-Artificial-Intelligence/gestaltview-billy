@@ -29,7 +29,7 @@
     "hono": "4.13.12",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "three": "0.185.1"
+    "three": "0.186.1"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
