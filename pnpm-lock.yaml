@@ -21,8 +21,8 @@ importers:
         specifier: 0.14.8
         version: 0.14.8(@devvit/server@0.14.8(twirp-ts@2.5.0))(@devvit/shared@0.14.8(twirp-ts@2.5.0))(@types/node@24.19.1)(google-protobuf@3.21.4)(supports-color@8.1.1)(typescript@6.0.3)
       hono:
-        specifier: 4.13.12
-        version: 4.13.12
+        specifier: 4.13.13
+        version: 4.13.13
       react:
         specifier: 19.3.1
         version: 19.3.1
@@ -1579,8 +1579,8 @@ packages:
   hermes-parser@0.25.1:
     resolution: {integrity: sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA==}
 
-  hono@4.13.12:
-    resolution: {integrity: sha512-6E2QDAc9Ick9Sq77ZrGS/dk2WUYni91aufTw6LJKpV7w8kW5/GxVUc650FOADOmlwg3K+f7Pun6XlV+pYmW6gw==}
+  hono@4.13.13:
+    resolution: {integrity: sha512-CQ46U0ZkAGmbT/4UxdzzGJpacP2IeKgY4a5/tOI9AABbpOMfK739wfDXmv1usCk+3RkKj1hQy4/fjhiwa2xlrA==}
     engines: {node: '>=16.9.0'}
 
   hookified@1.15.1:
@@ -3283,7 +3283,7 @@ snapshots:
 
   '@hono/node-server@2.1.5(hono@4.13.12)':
     dependencies:
-      hono: 4.13.12
+      hono: 4.13.13
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -4423,7 +4423,7 @@ snapshots:
     dependencies:
       hermes-estree: 0.25.1
 
-  hono@4.13.12: {}
+  hono@4.13.13: {}
 
   hookified@1.15.1: {}
 
