@@ -4,7 +4,7 @@
 
 ## For Reddit App Reviewers — please read first
 
-**This app cannot answer questions until its HTTP domain exception is approved.** When a user sends a chat message, the app's server signs the request and POSTs it to the GestaltView runtime at `https://gestaltview-three.vercel.app/api/insight-bot/respond`, which generates Billy's reply and returns it. The domain is declared in `devvit.json` (`permissions.http.domains`), but Devvit blocks all outbound HTTP until the exception is approved in the Developer Portal under this app's Developer Settings.
+**This app cannot answer questions until its HTTP domain exception is approved.** When a user sends a chat message, the app's server signs the request and POSTs it to the GestaltView runtime at `https://gestaltview-ai-v3.vercel.app/api/insight-bot/respond`, which generates Billy's reply and returns it. The domain is declared in `devvit.json` (`permissions.http.domains`), but Devvit blocks all outbound HTTP until the exception is approved in the Developer Portal under this app's Developer Settings.
 
 Until approval, the app installs and renders normally, but every chat attempt returns its designed degraded state ("GestaltView is temporarily unavailable"). That is the platform allowlist working as intended — not an app defect. **Please approve `gestaltview-three.vercel.app` so the app can be reviewed end to end.**
 
@@ -42,7 +42,7 @@ Each chat message goes to the app's server (`POST /api/insight/respond`), which 
 - Inputs are not retained by the adapter; the runtime contract enforces `retain_input: false`.
 - Per-user daily rate limits prevent abuse.
 - No Reddit data is used to train or fine-tune models.
-- Privacy policy: https://gestaltview-three.vercel.app/privacy · Terms: https://gestaltview-three.vercel.app/terms
+- Privacy policy: https://gestaltview-ai-v3.vercel.app/privacy · Terms: https://gestaltview-ai-v3.vercel.app/terms
 
 ## Developer setup
 
@@ -51,6 +51,6 @@ Each chat message goes to the app's server (`POST /api/insight/respond`), which 
 - `npm run deploy` — typecheck, lint, `devvit upload`
 - `npm run launch` — deploy + `devvit publish`
 - `npx devvit settings set runtimeSigningSecret` — adapter signing secret (global)
-- Per-subreddit install settings: `runtimeApiUrl` (default `https://gestaltview-three.vercel.app/api`), `dailyRequestLimit`, `emergencyDisabled`
+- Per-subreddit install settings: `runtimeApiUrl` (default `https://gestaltview-ai-v3.vercel.app/api`), `dailyRequestLimit`, `emergencyDisabled`
 
 License: BSD-3-Clause (see LICENSE).

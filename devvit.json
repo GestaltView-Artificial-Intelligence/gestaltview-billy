@@ -25,8 +25,8 @@
   "permissions": {
     "http": {
       "domains": [
-        "https://gestaltview-three.vercel.app",
-        "https://keith-soyka-portfolio.vercel.app"
+        "https://gestaltview-ai-v3.vercel.app",
+        "https://keith-soyka.vercel.app"
       ],
       "enable": true
     },
@@ -75,7 +75,7 @@
         "type": "boolean"
       },
       "runtimeApiUrl": {
-        "defaultValue": "https://gestaltview-three.vercel.app/api",
+        "defaultValue": "https://gestaltview-ai-v3.vercel.app/api",
         "label": "GestaltView runtime base URL",
         "type": "string"
       },
